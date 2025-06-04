@@ -108,3 +108,4 @@ gcloud pubsub subscriptions seek stats-service-pull --time=$(date -d '1 hour ago
 cd terraform
 terraform destroy -var="project_id=$PROJECT_ID"
 ```
+# nba-pub-sub
