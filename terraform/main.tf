@@ -116,7 +116,7 @@ resource "google_pubsub_subscription" "notification_service" {
   # Aggressive dead letter policy to demonstrate failures
   dead_letter_policy {
     dead_letter_topic     = google_pubsub_topic.dead_letter.id
-    max_delivery_attempts = 3
+    max_delivery_attempts = 5
   }
 
   # Retry policy - exponential backoff for failed messages
@@ -168,7 +168,7 @@ resource "google_cloud_run_v2_service" "fantasy_calculator" {
 
   traffic {
     percent = 100
-    type    = "TRAFFIC_ALLOCATION_LATEST"
+    type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
   }
 }
 

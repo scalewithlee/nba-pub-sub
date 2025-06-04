@@ -1,3 +1,5 @@
 .terraform/
 tfstate*
 .ropeproject
+**/__pycache__/
+**/terraform.tfstate*

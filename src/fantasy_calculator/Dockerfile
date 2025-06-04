@@ -10,7 +10,7 @@ COPY requirements.txt .
 RUN uv pip install --system -r requirements.txt
 
 # Copy application code
-COPY src/fantasy_calculator/ .
+COPY main.py .
 
 # Expose port
 EXPOSE 8080

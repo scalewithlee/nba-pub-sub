@@ -54,6 +54,7 @@ class StatsService:
 
         with self.subscriber:
             try:
+                # Consumer actively asks: "Any new messages?" (pull pattern)
                 streaming_pull_future = self.subscriber.subscribe(
                     self.subscription_path,
                     callback=self.process_message,

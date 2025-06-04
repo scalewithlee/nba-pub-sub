@@ -77,7 +77,7 @@ class NotificationService:
     def print_summary(self):
         """Print processing summary"""
         total = self.processed_count + self.failed_count
-        print(f"\nNotification Service Summary:")
+        print("\nNotification Service Summary:")
         print(f"  Processed: {self.processed_count}")
         print(f"  Failed: {self.failed_count}")
         print(f"  Total: {total}")

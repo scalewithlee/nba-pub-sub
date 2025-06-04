@@ -24,10 +24,10 @@ def publish_test_events():
     print("Publishing test events...")
 
     # Publish a star player scoring event (will trigger both stats and fantasy)
-    producer.publish_single_event("LeBron James", "score")
+    producer.publish_single_event("LeBron Jame", "score")
 
     # Publish a regular player rebound (will only trigger stats)
-    producer.publish_single_event("Austin Reaves", "rebound")
+    producer.publish_single_event("James Harden", "rebound")
 
     # Publish a random event
     producer.publish_single_event()
