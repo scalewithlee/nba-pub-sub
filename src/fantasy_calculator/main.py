@@ -9,7 +9,7 @@ import base64
 import os
 from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 app = FastAPI(title="NBA Fantasy Calculator", version="1.0.0")
 
@@ -19,7 +19,7 @@ FANTASY_POINTS = {
     "rebound": 1.2,
     "assist": 1.5,
     "steal": 2.0,
-    "block": 2.0
+    "block": 2.0,
 }
 
 
@@ -35,12 +35,12 @@ class FantasyCalculator:
 
     def calculate_fantasy_points(self, event_data: dict, attributes: dict) -> float:
         """Calculate fantasy points for an NBA event"""
-        event_type = attributes.get('event_type')
-        points_scored = int(attributes.get('points', 0))
+        event_type = attributes.get("event_type")
+        points_scored = int(attributes.get("points", 0))
 
         fantasy_points = 0.0
-        if event_type == 'score':
-            fantasy_points = FANTASY_POINTS['score'].get(str(points_scored), 0)
+        if event_type == "score":
+            fantasy_points = FANTASY_POINTS["score"].get(str(points_scored), 0)
         else:
             fantasy_points = FANTASY_POINTS.get(event_type, 0)
 
@@ -48,7 +48,7 @@ class FantasyCalculator:
 
     def process_event(self, event_data: dict, attributes: dict) -> dict:
         """Process a single NBA event and return fantasy points"""
-        player = event_data['player']
+        player = event_data["player"]
         fantasy_points = self.calculate_fantasy_points(event_data, attributes)
 
         # Update totals
@@ -60,10 +60,10 @@ class FantasyCalculator:
         self.player_totals[player] += fantasy_points
 
         return {
-            'player': player,
-            'event': event_data['event'],
-            'fantasy_points': fantasy_points,
-            'player_total': self.player_totals[player]
+            "player": player,
+            "event": event_data["event"],
+            "fantasy_points": fantasy_points,
+            "player_total": self.player_totals[player],
         }
 
 
@@ -78,7 +78,7 @@ async def health_check():
         "status": "healthy",
         "service": "NBA Fantasy Calculator",
         "events_processed": calculator.total_events,
-        "total_fantasy_points": calculator.total_fantasy_points
+        "total_fantasy_points": calculator.total_fantasy_points,
     }
 
 
@@ -88,7 +88,7 @@ async def get_stats():
     return {
         "total_events": calculator.total_events,
         "total_fantasy_points": calculator.total_fantasy_points,
-        "player_totals": calculator.player_totals
+        "player_totals": calculator.player_totals,
     }
 
 
@@ -99,17 +99,17 @@ async def handle_pubsub_push(request: Request):
         # Parse the Pub/Sub message
         body = await request.json()
 
-        if 'message' not in body:
+        if "message" not in body:
             raise HTTPException(status_code=400, detail="No Pub/Sub message found")
 
-        pubsub_message = body['message']
+        pubsub_message = body["message"]
 
         # Decode message data
-        if 'data' not in pubsub_message:
+        if "data" not in pubsub_message:
             raise HTTPException(status_code=400, detail="No message data found")
 
-        message_data = base64.b64decode(pubsub_message['data']).decode('utf-8')
-        attributes = pubsub_message.get('attributes', {})
+        message_data = base64.b64decode(pubsub_message["data"]).decode("utf-8")
+        attributes = pubsub_message.get("attributes", {})
 
         # Parse the NBA event
         event_data = json.loads(message_data)
@@ -117,23 +117,23 @@ async def handle_pubsub_push(request: Request):
         # Process the event
         result = calculator.process_event(event_data, attributes)
 
-        print(f"Fantasy Calculator: {result['player']} earned {result['fantasy_points']} fantasy points")
+        print(
+            f"Fantasy Calculator: {result['player']} earned {result['fantasy_points']} fantasy points"
+        )
         print(f"  Player total: {result['player_total']} points")
 
-        return {
-            'status': 'success',
-            'result': result
-        }
+        return {"status": "success", "result": result}
 
     except json.JSONDecodeError as e:
-        print(f'JSON decode error: {e}')
+        print(f"JSON decode error: {e}")
         raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
     except Exception as e:
-        print(f'Error processing message: {e}')
+        print(f"Error processing message: {e}")
         raise HTTPException(status_code=500, detail=f"Processing error: {e}")
 
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.getenv("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)

@@ -13,17 +13,19 @@ from typing import Dict, Any
 class StatsService:
     def __init__(self, project_id: str, subscription_name: str):
         self.subscriber = pubsub_v1.SubscriberClient()
-        self.subscription_path = self.subscriber.subscription_path(project_id, subscription_name)
+        self.subscription_path = self.subscriber.subscription_path(
+            project_id, subscription_name
+        )
         self.player_stats: Dict[str, Dict[str, int]] = {}
 
     def process_message(self, message: pubsub_v1.subscriber.message.Message):
         """Process a single stats message"""
         try:
             # Parse message data
-            data = json.loads(message.data.decode('utf-8'))
-            player = data['player']
-            points = data['points']
-            event = data['event']
+            data = json.loads(message.data.decode("utf-8"))
+            player = data["player"]
+            points = data["points"]
+            event = data["event"]
 
             # Update stats
             if player not in self.player_stats:
@@ -33,7 +35,9 @@ class StatsService:
             self.player_stats[player]["events"] += 1
 
             print(f"Stats Updated: {player} - {event} (+{points} pts)")
-            print(f"  Total: {self.player_stats[player]['total_points']} points in {self.player_stats[player]['events']} events")
+            print(
+                f"  Total: {self.player_stats[player]['total_points']} points in {self.player_stats[player]['events']} events"
+            )
 
             # Acknowledge message
             message.ack()
@@ -53,7 +57,7 @@ class StatsService:
                 streaming_pull_future = self.subscriber.subscribe(
                     self.subscription_path,
                     callback=self.process_message,
-                    flow_control=flow_control
+                    flow_control=flow_control,
                 )
 
                 streaming_pull_future.result(timeout=timeout)
@@ -68,13 +72,15 @@ class StatsService:
         """Print final statistics"""
         print("\nFINAL PLAYER STATS:")
         for player, stats in self.player_stats.items():
-            print(f"  {player}: {stats['total_points']} points, {stats['events']} events")
+            print(
+                f"  {player}: {stats['total_points']} points, {stats['events']} events"
+            )
 
 
 if __name__ == "__main__":
-    project_id = os.getenv('PROJECT_ID')
+    project_id = os.getenv("PROJECT_ID")
     if not project_id:
         raise ValueError("PROJECT_ID environment variable must be set")
 
-    service = StatsService(project_id, 'stats-service-pull')
+    service = StatsService(project_id, "stats-service-pull")
     service.start_listening(60)

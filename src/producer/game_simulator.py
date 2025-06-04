@@ -18,7 +18,7 @@ NBA_PLAYERS = [
     {"name": "Giannis Antetokounmpo", "team": "MIL", "rating": "star"},
     {"name": "Jayson Tatum", "team": "BOS", "rating": "star"},
     {"name": "Austin Reaves", "team": "LAL", "rating": "regular"},
-    {"name": "Jordan Poole", "team": "GSW", "rating": "regular"},
+    {"name": "James Harden", "team": "LAC", "rating": "regular"},
 ]
 
 EVENT_TYPES = [
@@ -35,15 +35,21 @@ class NBAEventProducer:
         self.publisher = pubsub_v1.PublisherClient()
         self.topic_path = self.publisher.topic_path(project_id, topic_name)
 
-    def publish_single_event(self, player_name: str = None, event_type: str = None) -> dict:
+    def publish_single_event(self, player_name: str = "", event_type: str = "") -> dict:
         """Publish a single NBA event"""
         if player_name:
-            player = next((p for p in NBA_PLAYERS if p["name"] == player_name), random.choice(NBA_PLAYERS))
+            player = next(
+                (p for p in NBA_PLAYERS if p["name"] == player_name),
+                random.choice(NBA_PLAYERS),
+            )
         else:
             player = random.choice(NBA_PLAYERS)
 
         if event_type:
-            event = next((e for e in EVENT_TYPES if e["type"] == event_type), random.choice(EVENT_TYPES))
+            event = next(
+                (e for e in EVENT_TYPES if e["type"] == event_type),
+                random.choice(EVENT_TYPES),
+            )
         else:
             event = random.choice(EVENT_TYPES)
 
@@ -56,7 +62,7 @@ class NBAEventProducer:
             "event": event["description"],
             "points": points,
             "timestamp": datetime.now().isoformat(),
-            "game_id": "LAL_vs_GSW_2024_01_15"
+            "game_id": "LAL_vs_GSW_2024_01_15",
         }
 
         # Message attributes for filtering
@@ -64,23 +70,25 @@ class NBAEventProducer:
             "event_type": event["type"],
             "player_rating": player["rating"],
             "team": player["team"],
-            "points": str(points)
+            "points": str(points),
         }
 
         # Publish message
         message_json = json.dumps(message_data)
         future = self.publisher.publish(
-            self.topic_path,
-            message_json.encode('utf-8'),
-            **attributes
+            self.topic_path, message_json.encode("utf-8"), **attributes
         )
 
         result = future.result()
-        print(f"Published: {player['name']} {event['description']} ({points} pts) - Message ID: {result}")
+        print(
+            f"Published: {player['name']} {event['description']} ({points} pts) - Message ID: {result}"
+        )
 
         return message_data
 
-    def simulate_game_events(self, num_events: int = 10, delay_range: tuple = (0.5, 2.0)):
+    def simulate_game_events(
+        self, num_events: int = 10, delay_range: tuple = (0.5, 2.0)
+    ):
         """Simulate random NBA game events"""
         print(f"Starting NBA game simulation - publishing {num_events} events")
 
@@ -97,9 +105,9 @@ class NBAEventProducer:
 
 
 if __name__ == "__main__":
-    project_id = os.getenv('PROJECT_ID')
+    project_id = os.getenv("PROJECT_ID")
     if not project_id:
         raise ValueError("PROJECT_ID environment variable must be set")
 
-    producer = NBAEventProducer(project_id, 'nba-game-events')
+    producer = NBAEventProducer(project_id, "nba-game-events")
     producer.simulate_game_events(15)

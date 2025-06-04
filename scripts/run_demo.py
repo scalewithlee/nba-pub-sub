@@ -20,7 +20,7 @@ from consumers.notification_service import NotificationService
 
 def run_demo():
     """Run the complete NBA Pub/Sub demo"""
-    project_id = os.getenv('PROJECT_ID')
+    project_id = os.getenv("PROJECT_ID")
     if not project_id:
         raise ValueError("PROJECT_ID environment variable must be set")
 
@@ -28,21 +28,19 @@ def run_demo():
     print("=" * 50)
 
     # Create services
-    producer = NBAEventProducer(project_id, 'nba-game-events')
-    stats_service = StatsService(project_id, 'stats-service-pull')
-    notification_service = NotificationService(project_id, 'notification-service-flaky')
+    producer = NBAEventProducer(project_id, "nba-game-events")
+    stats_service = StatsService(project_id, "stats-service-pull")
+    notification_service = NotificationService(project_id, "notification-service-flaky")
 
     # Start consumers in separate threads
     print("Starting consumer services...")
     stats_thread = threading.Thread(
-        target=stats_service.start_listening,
-        args=(45,),
-        name="StatsService"
+        target=stats_service.start_listening, args=(45,), name="StatsService"
     )
     notification_thread = threading.Thread(
         target=notification_service.start_listening,
         args=(45,),
-        name="NotificationService"
+        name="NotificationService",
     )
 
     stats_thread.start()
@@ -68,7 +66,9 @@ def run_demo():
     print("\n2. View fantasy calculator logs:")
     print("   gcloud run services logs read fantasy-calculator --region=us-central1")
     print("\n3. Try message replay:")
-    print("   gcloud pubsub subscriptions seek stats-service-pull --time=$(date -d '1 hour ago' --iso-8601)")
+    print(
+        "   gcloud pubsub subscriptions seek stats-service-pull --time=$(date -d '1 hour ago' --iso-8601)"
+    )
 
 
 if __name__ == "__main__":
